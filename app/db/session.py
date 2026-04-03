@@ -5,10 +5,9 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from dotenv import load_dotenv
 
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Engine manages the pool of connections to the database, handles connection creation and pooling.
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(os.getenv("DATABASE_URL") or "sqlite:///./test.db", echo=True)
 
 # SessionLocal is a factory for creating new Session objects, which are used to interact with the database.
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

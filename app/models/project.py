@@ -13,4 +13,3 @@ class Project(Base):
     live_at = Column(String)
     technologies = Column(ARRAY(String)) # Array of strings like ["FastAPI", "React"]
     created_at = Column(DateTime)
-    

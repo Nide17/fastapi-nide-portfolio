@@ -1,5 +1,4 @@
 # This separates DB queries from API logic (routes)
-
 from sqlalchemy.orm import Session
 from app.models.project import Project
 
