@@ -26,3 +26,9 @@ def edit_project(db: Session, project_id: int, project_data):
     db.query(Project).filter(Project.id == project_id).update(project_data.model_dump())
     db.commit()
     return db.query(Project).filter(Project.id == project_id).first()
+
+
+def remove_project(db: Session, project_id: int):
+    """Deletes a project from the database."""
+    db.query(Project).filter(Project.id == project_id).delete()
+    db.commit()

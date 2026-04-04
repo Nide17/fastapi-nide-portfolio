@@ -44,3 +44,12 @@ def update_user(user_id: int, user_data: UserBase, db: Session = Depends(get_db)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+@router.delete("/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    """Endpoint to delete a specific user by its ID."""
+    existing_user = crud_user.get_user_by_id(db, user_id)
+    if existing_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    crud_user.remove_user(db, user_id)
+    return {"msg": "User deleted successfully"}

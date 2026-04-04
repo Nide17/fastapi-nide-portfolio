@@ -27,3 +27,9 @@ def edit_download(db: Session, download_id: int, download_data):
     db.query(Download).filter(Download.id == download_id).update(download_data.model_dump())
     db.commit()
     return db.query(Download).filter(Download.id == download_id).first()
+
+
+def remove_download(db: Session, download_id: int):
+    """Deletes a download from the database."""
+    db.query(Download).filter(Download.id == download_id).delete()
+    db.commit()

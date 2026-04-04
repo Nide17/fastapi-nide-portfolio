@@ -26,3 +26,8 @@ def edit_visit(db: Session, visit_id: int, visit_data):
     db.query(Visit).filter(Visit.id == visit_id).update(visit_data.model_dump())
     db.commit()
     return db.query(Visit).filter(Visit.id == visit_id).first()
+
+def remove_visit(db: Session, visit_id: int):
+    """Deletes a visit from the database."""
+    db.query(Visit).filter(Visit.id == visit_id).delete()
+    db.commit()

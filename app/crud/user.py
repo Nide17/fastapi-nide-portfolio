@@ -31,3 +31,8 @@ def edit_user(db: Session, user_id: int, user_data):
     db.query(User).filter(User.id == user_id).update(user_data.model_dump())
     db.commit()
     return db.query(User).filter(User.id == user_id).first()
+
+def remove_user(db: Session, user_id: int):
+    """Deletes a user from the database."""
+    db.query(User).filter(User.id == user_id).delete()
+    db.commit()

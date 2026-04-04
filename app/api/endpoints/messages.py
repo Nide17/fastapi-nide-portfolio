@@ -37,3 +37,12 @@ def update_message(message_id: int, message_data: MessageBase, db: Session = Dep
         raise HTTPException(status_code=404, detail="Message not found")
     updated_message = crud_message.edit_message(db, message_id, message_data)
     return updated_message
+
+@router.delete("/{message_id}")
+def delete_message(message_id: int, db: Session = Depends(get_db)):
+    """Endpoint to delete a message."""
+    existing_message = crud_message.get_message_by_id(db, message_id)
+    if existing_message is None:
+        raise HTTPException(status_code=404, detail="Message not found")
+    crud_message.remove_message(db, message_id)
+    return {"msg": "Message deleted successfully"}

@@ -34,3 +34,12 @@ def update_visit(visit_id: int, visit_data: VisitBase, db: Session = Depends(get
     if visit is None:
         raise HTTPException(status_code=404, detail="Visit not found")
     return visit
+
+@router.delete("/{visit_id}")
+def delete_visit(visit_id: int, db: Session = Depends(get_db)):
+    """Endpoint to delete a specific visit by its ID."""
+    existing_visit = crud_visit.get_visit_by_id(db, visit_id)
+    if existing_visit is None:
+        raise HTTPException(status_code=404, detail="Visit not found")
+    crud_visit.remove_visit(db, visit_id)
+    return {"msg": "Visit deleted successfully"}

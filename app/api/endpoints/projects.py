@@ -36,3 +36,12 @@ def update_project(project_id: int, project_data: ProjectBase, db: Session = Dep
         raise HTTPException(status_code=404, detail="Project not found")
     updated_project = crud_project.edit_project(db, project_id, project_data)
     return updated_project
+
+@router.delete("/{project_id}")
+def delete_project(project_id: int, db: Session = Depends(get_db)):
+    """Endpoint to delete a project."""
+    existing_project = crud_project.get_project_by_id(db, project_id)
+    if existing_project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    crud_project.remove_project(db, project_id)
+    return {"msg": "Project deleted successfully"}

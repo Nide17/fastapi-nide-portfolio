@@ -37,3 +37,12 @@ def update_download(download_id: int, download_data: DownloadBase, db: Session =
         raise HTTPException(status_code=404, detail="Download not found")
     updated_download = crud_download.edit_download(db, download_id, download_data)
     return updated_download
+
+@router.delete("/{download_id}")
+def delete_download(download_id: int, db: Session = Depends(get_db)):
+    """Endpoint to delete a specific download by its ID."""
+    existing_download = crud_download.get_download_by_id(db, download_id)
+    if existing_download is None:
+        raise HTTPException(status_code=404, detail="Download not found")
+    crud_download.remove_download(db, download_id)
+    return {"msg": "Download deleted successfully"}

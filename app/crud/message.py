@@ -24,3 +24,8 @@ def edit_message(db: Session, message_id: int, message_data):
         message_data.model_dump())
     db.commit()
     return db.query(Message).filter(Message.id == message_id).first()
+
+def remove_message(db: Session, message_id: int):
+    """Deletes a message from the database."""
+    db.query(Message).filter(Message.id == message_id).delete()
+    db.commit()
