@@ -6,6 +6,7 @@ from alembic import context
 from app.db.session import Base, engine
 from app.models.project import Project
 from app.models.message import Message
+from app.models.download import Download
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

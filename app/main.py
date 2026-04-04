@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.api.endpoints import projects
 from app.api.endpoints import messages
+from app.api.endpoints import downloads
 
 app = FastAPI(
     title="FastAPI Nide Portfolio",
@@ -15,6 +16,7 @@ async def health_check():
 # Include routers
 app.include_router(projects.router, prefix="/projects", tags=["Projects"])
 app.include_router(messages.router, prefix="/messages", tags=["Messages"])
+app.include_router(downloads.router, prefix="/downloads", tags=["Downloads"])
 
 @app.get("/")
 async def root():

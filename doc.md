@@ -37,6 +37,7 @@ Alembic is a popular tool for handling database migrations in Python projects th
 5. Apply the migration: `alembic upgrade head`.
 6. To downgrade the migration: `alembic downgrade -1`
 7. Use `alembic stamp base` to mark the current state of the database as the base version if you are starting with an existing database and want to use Alembic for future migrations or if you want to reset the migration history.
+8. Use `alembic stamp head` to mark the current state of the database as the latest version if you want to skip applying all existing migrations and start fresh from the current state.
 
 ### Example:
 ```
