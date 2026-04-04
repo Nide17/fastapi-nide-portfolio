@@ -1,13 +1,11 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
 
 # Import Base and models to ensure they are registered with Alembic for autogeneration.
 from app.db.session import Base, engine
 from app.models.project import Project
+from app.models.message import Message
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
