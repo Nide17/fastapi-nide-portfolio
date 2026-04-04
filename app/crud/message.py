@@ -9,3 +9,11 @@ def get_all_messages(db: Session):
 def get_message_by_id(db: Session, message_id: int):
     """Fetches a single message by its ID."""
     return db.query(Message).filter(Message.id == message_id).first()
+
+def add_message(db: Session, message_data):
+    """Creates a new message in the database."""
+    new_message = Message(**message_data.dict())
+    db.add(new_message)
+    db.commit()
+    db.refresh(new_message)
+    return new_message

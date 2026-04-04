@@ -29,3 +29,9 @@ def read_user_by_email(email: str, db: Session = Depends(get_db)):
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+@router.post("/", response_model=UserOut)
+def create_user(user_data: UserOut, db: Session = Depends(get_db)):
+    """Endpoint to create a new user."""
+    user = crud_user.add_user(db, user_data)
+    return user

@@ -21,3 +21,9 @@ def read_visit(visit_id: int, db: Session = Depends(get_db)):
     if visit is None:
         raise HTTPException(status_code=404, detail="Visit not found")
     return visit
+
+@router.post("/", response_model=VisitOut)
+def create_visit(visit_data: VisitOut, db: Session = Depends(get_db)):
+    """Endpoint to create a new visit."""
+    visit = crud_visit.add_visit(db, visit_data)
+    return visit

@@ -21,3 +21,9 @@ def read_message(message_id: int, db: Session = Depends(get_db)):
     if message is None:
         raise HTTPException(status_code=404, detail="Message not found")
     return message
+
+@router.post("/", response_model=MessageOut)
+def create_message(message_data: MessageOut, db: Session = Depends(get_db)):
+    """Endpoint to create a new message."""
+    message = crud_message.add_message(db, message_data)
+    return message

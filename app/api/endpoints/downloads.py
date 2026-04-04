@@ -21,3 +21,9 @@ def read_download(download_id: int, db: Session = Depends(get_db)):
     if download is None:
         raise HTTPException(status_code=404, detail="Download not found")
     return download
+
+@router.post("/", response_model=DownloadOut)
+def create_download(download_data: DownloadOut, db: Session = Depends(get_db)):
+    """Endpoint to create a new download."""
+    download = crud_download.add_download(db, download_data)
+    return download

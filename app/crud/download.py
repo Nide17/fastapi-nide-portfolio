@@ -9,3 +9,11 @@ def get_all_downloads(db: Session):
 def get_download_by_id(db: Session, download_id: int):
     """Fetches a single download by its ID."""
     return db.query(Download).filter(Download.id == download_id).first()
+
+def add_download(db: Session, download_data):
+    """Creates a new download in the database."""
+    new_download = Download(**download_data.dict())
+    db.add(new_download)
+    db.commit()
+    db.refresh(new_download)
+    return new_download

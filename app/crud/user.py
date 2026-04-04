@@ -13,3 +13,11 @@ def get_user_by_id(db: Session, user_id: int):
 def get_user_by_email(db: Session, email: str):
     """Fetches a single user by their email."""
     return db.query(User).filter(User.email == email).first()
+
+def add_user(db: Session, user_data):
+    """Creates a new user in the database."""
+    new_user = User(**user_data.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
