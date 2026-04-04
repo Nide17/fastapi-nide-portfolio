@@ -20,3 +20,9 @@ def add_visit(db: Session, visit_data):
     db.commit()
     db.refresh(new_visit)
     return new_visit
+
+def edit_visit(db: Session, visit_id: int, visit_data):
+    """Updates an existing visit in the database."""
+    db.query(Visit).filter(Visit.id == visit_id).update(visit_data.model_dump())
+    db.commit()
+    return db.query(Visit).filter(Visit.id == visit_id).first()

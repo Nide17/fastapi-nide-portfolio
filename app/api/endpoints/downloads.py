@@ -28,3 +28,12 @@ def create_download(download_data: DownloadBase, db: Session = Depends(get_db)):
     """Endpoint to create a new download."""
     download = crud_download.add_download(db, download_data)
     return download
+
+@router.put("/{download_id}", response_model=DownloadOut)
+def update_download(download_id: int, download_data: DownloadBase, db: Session = Depends(get_db)):
+    """Endpoint to update an existing download."""
+    existing_download = crud_download.get_download_by_id(db, download_id)
+    if existing_download is None:
+        raise HTTPException(status_code=404, detail="Download not found")
+    updated_download = crud_download.edit_download(db, download_id, download_data)
+    return updated_download

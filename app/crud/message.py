@@ -17,3 +17,10 @@ def add_message(db: Session, message_data):
     db.commit()
     db.refresh(new_message)
     return new_message
+
+def edit_message(db: Session, message_id: int, message_data):
+    """Updates an existing message in the database."""
+    db.query(Message).filter(Message.id == message_id).update(
+        message_data.model_dump())
+    db.commit()
+    return db.query(Message).filter(Message.id == message_id).first()

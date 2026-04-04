@@ -1,5 +1,4 @@
 # Routes for handling visit-related API endpoints
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
@@ -22,9 +21,16 @@ def read_visit(visit_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Visit not found")
     return visit
 
-
 @router.post("/", response_model=VisitOut)
 def create_visit(visit_data: VisitBase, db: Session = Depends(get_db)):
     """Endpoint to create a new visit."""
     visit = crud_visit.add_visit(db, visit_data)
+    return visit
+
+@router.put("/{visit_id}", response_model=VisitOut)
+def update_visit(visit_id: int, visit_data: VisitBase, db: Session = Depends(get_db)):
+    """Endpoint to update an existing visit."""
+    visit = crud_visit.edit_visit(db, visit_id, visit_data)
+    if visit is None:
+        raise HTTPException(status_code=404, detail="Visit not found")
     return visit

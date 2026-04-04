@@ -36,3 +36,11 @@ def create_user(user_data: UserBase, db: Session = Depends(get_db)):
     """Endpoint to create a new user."""
     user = crud_user.add_user(db, user_data)
     return user
+
+@router.put("/{user_id}", response_model=UserOut)
+def update_user(user_id: int, user_data: UserBase, db: Session = Depends(get_db)):
+    """Endpoint to update an existing user."""
+    user = crud_user.edit_user(db, user_id, user_data)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user

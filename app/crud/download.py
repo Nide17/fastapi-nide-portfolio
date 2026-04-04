@@ -20,3 +20,10 @@ def add_download(db: Session, download_data):
     db.commit()
     db.refresh(new_download)
     return new_download
+
+
+def edit_download(db: Session, download_id: int, download_data):
+    """Updates an existing download in the database."""
+    db.query(Download).filter(Download.id == download_id).update(download_data.model_dump())
+    db.commit()
+    return db.query(Download).filter(Download.id == download_id).first()
