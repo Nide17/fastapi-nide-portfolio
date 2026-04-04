@@ -1,6 +1,7 @@
 # DB Tables
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, TIMESTAMP, text
 from app.db.session import Base
+
 
 class Download(Base):
     __tablename__ = "downloads"
@@ -9,8 +10,12 @@ class Download(Base):
     ip_address = Column(String, nullable=False)
     document_name = Column(String, nullable=False)
     device = Column(String, nullable=True)
-    operating_system = Column(String, nullable=True) # Can be extracted from the user agent string
-    browser = Column(String, nullable=True) # Can be extracted from the user agent string
-    country = Column(String, nullable=True) # Can be extracted from the IP address using a geolocation service
-    referrer = Column(String, nullable=True) # Can be extracted from the user agent string or the request headers
-    created_at = Column(DateTime)
+    # Can be extracted from the user agent string
+    operating_system = Column(String, nullable=True)
+    # Can be extracted from the user agent string
+    browser = Column(String, nullable=True)
+    # Can be extracted from the IP address using a geolocation service
+    country = Column(String, nullable=True)
+    # Can be extracted from the user agent string or the request headers
+    referrer = Column(String, nullable=True)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.crud import user as crud_user
-from app.schemas.user import UserOut
+from app.schemas.user import UserBase, UserOut
 
 router = APIRouter()
 
@@ -30,8 +30,9 @@ def read_user_by_email(email: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+
 @router.post("/", response_model=UserOut)
-def create_user(user_data: UserOut, db: Session = Depends(get_db)):
+def create_user(user_data: UserBase, db: Session = Depends(get_db)):
     """Endpoint to create a new user."""
     user = crud_user.add_user(db, user_data)
     return user

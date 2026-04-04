@@ -12,7 +12,7 @@ def get_message_by_id(db: Session, message_id: int):
 
 def add_message(db: Session, message_data):
     """Creates a new message in the database."""
-    new_message = Message(**message_data.dict())
+    new_message = Message(**message_data.model_dump())
     db.add(new_message)
     db.commit()
     db.refresh(new_message)

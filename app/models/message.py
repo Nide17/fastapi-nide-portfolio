@@ -1,6 +1,7 @@
 # DB Tables
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, TIMESTAMP, text
 from app.db.session import Base
+
 
 class Message(Base):
     __tablename__ = "messages"
@@ -10,4 +11,4 @@ class Message(Base):
     sender_email = Column(String, index=True, nullable=False)
     subject = Column(String, nullable=False)
     body = Column(String, nullable=False)
-    created_at = Column(DateTime)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))

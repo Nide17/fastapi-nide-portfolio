@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.crud import download as crud_download
-from app.schemas.download import DownloadOut
+from app.schemas.download import DownloadBase, DownloadOut
 
 router = APIRouter()
 
@@ -22,8 +22,9 @@ def read_download(download_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Download not found")
     return download
 
+
 @router.post("/", response_model=DownloadOut)
-def create_download(download_data: DownloadOut, db: Session = Depends(get_db)):
+def create_download(download_data: DownloadBase, db: Session = Depends(get_db)):
     """Endpoint to create a new download."""
     download = crud_download.add_download(db, download_data)
     return download

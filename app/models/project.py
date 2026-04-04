@@ -1,6 +1,7 @@
 # DB Tables
-from sqlalchemy import Column, Integer, String, ARRAY, DateTime
+from sqlalchemy import Column, Integer, String, ARRAY, TIMESTAMP, text
 from app.db.session import Base
+
 
 class Project(Base):
     __tablename__ = "projects"
@@ -11,5 +12,6 @@ class Project(Base):
     image = Column(String)
     github = Column(String)
     live_at = Column(String)
-    technologies = Column(ARRAY(String)) # Array of strings like ["FastAPI", "React"]
-    created_at = Column(DateTime)
+    # Array of strings like ["FastAPI", "React"]
+    technologies = Column(ARRAY(String))
+    created_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))

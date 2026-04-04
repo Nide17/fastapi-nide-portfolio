@@ -1,6 +1,7 @@
 # Pydantic Schemas or models that validate and serialize incoming and outgoing data for the Project
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
+import datetime
 
 class ProjectBase(BaseModel):
     title: str
@@ -12,6 +13,6 @@ class ProjectBase(BaseModel):
 
 class ProjectOut(ProjectBase):
     id: int
-    created_at: Optional[str] = None
+    created_at: datetime.datetime | None
 
     model_config = ConfigDict(from_attributes=True) # Allows Pydantic to read SQLAlchemy objects

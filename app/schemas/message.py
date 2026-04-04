@@ -1,6 +1,7 @@
 # Pydantic Schemas or models that validate and serialize incoming and outgoing data for the Message
 from pydantic import BaseModel, ConfigDict
-from typing import Optional
+import datetime
+
 
 class MessageBase(BaseModel):
     sender_name: str
@@ -8,8 +9,10 @@ class MessageBase(BaseModel):
     subject: str
     body: str
 
+
 class MessageOut(MessageBase):
     id: int
-    created_at: Optional[str] = None
+    created_at: datetime.datetime | None | None
 
-    model_config = ConfigDict(from_attributes=True) # Allows Pydantic to read SQLAlchemy objects
+    # Allows Pydantic to read SQLAlchemy objects
+    model_config = ConfigDict(from_attributes=True)
