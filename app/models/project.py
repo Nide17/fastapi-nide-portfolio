@@ -14,4 +14,5 @@ class Project(Base):
     live_at = Column(String)
     # Array of strings like ["FastAPI", "React"]
     technologies = Column(ARRAY(String))
-    created_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))
+    created_at = Column(TIMESTAMP(timezone=True),
+                        server_default=text("NOW() AT TIME ZONE 'UTC'"))

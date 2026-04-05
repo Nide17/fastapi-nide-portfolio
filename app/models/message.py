@@ -11,4 +11,5 @@ class Message(Base):
     sender_email = Column(String, index=True, nullable=False)
     subject = Column(String, nullable=False)
     body = Column(String, nullable=False)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))
+    created_at = Column(TIMESTAMP(timezone=True),
+                        server_default=text("NOW() AT TIME ZONE 'UTC'"))

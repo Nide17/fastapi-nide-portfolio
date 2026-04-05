@@ -18,4 +18,5 @@ class Download(Base):
     country = Column(String, nullable=True)
     # Can be extracted from the user agent string or the request headers
     referrer = Column(String, nullable=True)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))
+    created_at = Column(TIMESTAMP(timezone=True),
+                        server_default=text("NOW() AT TIME ZONE 'UTC'"))

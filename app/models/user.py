@@ -12,4 +12,5 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     # Can be used for admin or regular user roles
     role = Column(String, nullable=True)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))
+    created_at = Column(TIMESTAMP(timezone=True),
+                        server_default=text("NOW() AT TIME ZONE 'UTC'"))

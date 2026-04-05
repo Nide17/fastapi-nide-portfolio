@@ -15,6 +15,7 @@ def get_visit_by_id(db: Session, visit_id: int):
 
 def add_visit(db: Session, visit_data):
     """Creates a new visit in the database."""
+    visit_data.ip_address = str(visit_data.ip_address)  # Convert IPvAnyAddress to string for DB storage
     new_visit = Visit(**visit_data.model_dump())
     db.add(new_visit)
     db.commit()
@@ -23,6 +24,7 @@ def add_visit(db: Session, visit_data):
 
 def edit_visit(db: Session, visit_id: int, visit_data):
     """Updates an existing visit in the database."""
+    visit_data.ip_address = str(visit_data.ip_address)
     db.query(Visit).filter(Visit.id == visit_id).update(visit_data.model_dump())
     db.commit()
     return db.query(Visit).filter(Visit.id == visit_id).first()
