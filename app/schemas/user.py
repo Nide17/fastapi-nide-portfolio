@@ -1,12 +1,12 @@
 # Pydantic Schemas or models that validate and serialize incoming and outgoing data for the User
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr
 from typing import Optional
 import datetime
 
 
 class UserBase(BaseModel):
     name: str
-    email: str
+    email: EmailStr
     role: Optional[str] = None  # Can be used for admin or regular user roles
 
 

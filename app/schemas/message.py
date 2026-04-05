@@ -1,10 +1,10 @@
 # Pydantic Schemas or models that validate and serialize incoming and outgoing data for the Message
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr
 import datetime
 
 class MessageBase(BaseModel):
     sender_name: str
-    sender_email: str
+    sender_email: EmailStr
     subject: str
     body: str
 

@@ -1,11 +1,11 @@
 # Pydantic Schemas or models that validate and serialize incoming and outgoing data for the Download
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, IPvAnyAddress
 from typing import Optional
 import datetime
 
 
 class DownloadBase(BaseModel):
-    ip_address: str
+    ip_address: IPvAnyAddress
     document_name: str
     device: Optional[str] = None
     # Can be extracted from the user agent string
