@@ -1,0 +1,11 @@
+services:
+  api:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env-docker // For pgadmin postgres connection
+
+    # This is for Windows that makes 'host.docker.internal' work
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

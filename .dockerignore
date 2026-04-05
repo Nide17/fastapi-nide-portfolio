@@ -1,0 +1,31 @@
+# Exclude git and environment configuration
+.git
+.gitignore
+.env
+
+# Exclude Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Exclude virtual environments
+venv/
+.venv/
+.env*
+
+# Exclude build artifacts and distribution files
+dist/
+build/
+*.egg-info/ 
+
+# Exclude IDE and editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Exclude logs and temporary files
+*.log
+tmp/
