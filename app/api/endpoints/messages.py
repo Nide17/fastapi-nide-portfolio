@@ -8,11 +8,13 @@ from app.schemas.message import MessageBase, MessageOut
 
 router = APIRouter()
 
+
 @router.get("/", response_model=list[MessageOut])
 def read_messages(db: Session = Depends(get_db)):
     """Endpoint to fetch all messages."""
     messages = crud_message.get_all_messages(db)
     return messages
+
 
 @router.get("/{message_id}", response_model=MessageOut)
 def read_message(message_id: int, db: Session = Depends(get_db)):
@@ -29,6 +31,7 @@ def create_message(message_data: MessageBase, db: Session = Depends(get_db)):
     message = crud_message.add_message(db, message_data)
     return message
 
+
 @router.put("/{message_id}", response_model=MessageOut)
 def update_message(message_id: int, message_data: MessageBase, db: Session = Depends(get_db)):
     """Endpoint to update an existing message."""
@@ -37,6 +40,7 @@ def update_message(message_id: int, message_data: MessageBase, db: Session = Dep
         raise HTTPException(status_code=404, detail="Message not found")
     updated_message = crud_message.edit_message(db, message_id, message_data)
     return updated_message
+
 
 @router.delete("/{message_id}")
 def delete_message(message_id: int, db: Session = Depends(get_db)):

@@ -1,7 +1,7 @@
 # This separates DB queries from API logic (routes)
 from sqlalchemy.orm import Session
 from app.models.visit import Visit
-from utils.utils import get_existing_ip
+from app.utils.utils import get_existing_ip
 
 
 def get_all_visits(db: Session):

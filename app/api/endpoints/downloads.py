@@ -8,11 +8,13 @@ from app.schemas.download import DownloadBase, DownloadOut
 
 router = APIRouter()
 
+
 @router.get("/", response_model=list[DownloadOut])
 def read_downloads(db: Session = Depends(get_db)):
     """Endpoint to fetch all downloads."""
     downloads = crud_download.get_all_downloads(db)
     return downloads
+
 
 @router.get("/{download_id}", response_model=DownloadOut)
 def read_download(download_id: int, db: Session = Depends(get_db)):
@@ -29,14 +31,17 @@ def create_download(download_data: DownloadBase, db: Session = Depends(get_db)):
     download = crud_download.add_download(db, download_data)
     return download
 
+
 @router.put("/{download_id}", response_model=DownloadOut)
 def update_download(download_id: int, download_data: DownloadBase, db: Session = Depends(get_db)):
     """Endpoint to update an existing download."""
     existing_download = crud_download.get_download_by_id(db, download_id)
     if existing_download is None:
         raise HTTPException(status_code=404, detail="Download not found")
-    updated_download = crud_download.edit_download(db, download_id, download_data)
+    updated_download = crud_download.edit_download(
+        db, download_id, download_data)
     return updated_download
+
 
 @router.delete("/{download_id}")
 def delete_download(download_id: int, db: Session = Depends(get_db)):

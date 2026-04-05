@@ -26,11 +26,13 @@ def add_user(db: Session, user_data):
     db.refresh(new_user)
     return new_user
 
+
 def edit_user(db: Session, user_id: int, user_data):
     """Updates an existing user in the database."""
     db.query(User).filter(User.id == user_id).update(user_data.model_dump())
     db.commit()
     return db.query(User).filter(User.id == user_id).first()
+
 
 def remove_user(db: Session, user_id: int):
     """Deletes a user from the database."""

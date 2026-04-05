@@ -21,9 +21,11 @@ def add_project(db: Session, project_data):
     db.refresh(new_project)
     return new_project
 
+
 def edit_project(db: Session, project_id: int, project_data):
     """Updates an existing project in the database."""
-    db.query(Project).filter(Project.id == project_id).update(project_data.model_dump())
+    db.query(Project).filter(Project.id == project_id).update(
+        project_data.model_dump())
     db.commit()
     return db.query(Project).filter(Project.id == project_id).first()
 

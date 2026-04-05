@@ -8,11 +8,13 @@ from app.schemas.user import UserBase, UserOut
 
 router = APIRouter()
 
+
 @router.get("/", response_model=list[UserOut])
 def read_users(db: Session = Depends(get_db)):
     """Endpoint to fetch all users."""
     users = crud_user.get_all_users(db)
     return users
+
 
 @router.get("/{user_id}", response_model=UserOut)
 def read_user(user_id: int, db: Session = Depends(get_db)):
@@ -21,6 +23,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
 
 @router.get("/email/{email}", response_model=UserOut)
 def read_user_by_email(email: str, db: Session = Depends(get_db)):
@@ -37,6 +40,7 @@ def create_user(user_data: UserBase, db: Session = Depends(get_db)):
     user = crud_user.add_user(db, user_data)
     return user
 
+
 @router.put("/{user_id}", response_model=UserOut)
 def update_user(user_id: int, user_data: UserBase, db: Session = Depends(get_db)):
     """Endpoint to update an existing user."""
@@ -44,6 +48,7 @@ def update_user(user_id: int, user_data: UserBase, db: Session = Depends(get_db)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
 
 @router.delete("/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
