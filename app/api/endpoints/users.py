@@ -1,12 +1,118 @@
-# Routes for handling user-related API endpoints
+"""
+User-related endpoints: registration, login, token refresh,
+password reset (forgot/reset) and basic CRUD.
+"""
 
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import timedelta
+from typing import cast
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
+
 from app.db.session import get_db
 from app.crud import user as crud_user
-from app.schemas.user import UserBase, UserOut
+from app.schemas.user import (
+    UserBase,
+    UserOut,
+    UserCreate,
+    UserLogin,
+    Token as TokenSchema,
+    PasswordResetRequest,
+    PasswordResetConfirm,
+)
+from app.core import auth
+
 
 router = APIRouter()
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+@router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+def register(user_data: UserCreate, db: Session = Depends(get_db)):
+    """Register a new user (hashes password)."""
+    existing = crud_user.get_user_by_email(db, user_data.email)
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+    user = crud_user.create_user(db, user_data)
+    return user
+
+
+@router.post("/login", response_model=TokenSchema)
+def login(credentials: UserLogin, db: Session = Depends(get_db)):
+    """Authenticate user and return access and refresh tokens."""
+    user = crud_user.authenticate_user(
+        db, credentials.email, credentials.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    data = {"sub": user.email, "id": user.id, "role": user.role}
+    access_token = auth.create_access_token(data)
+    refresh_token = auth.create_refresh_token(data)
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+@router.post("/token/refresh", response_model=TokenSchema)
+def refresh_token(body: RefreshRequest):
+    """Exchange a refresh token for a new access token."""
+    payload = auth.decode_token(body.refresh_token)
+    if not payload or payload.get("type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+    # Build new access token with a fresh expiry
+    data = {"sub": payload.get("sub"), "id": payload.get(
+        "id"), "role": payload.get("role")}
+    access_token = auth.create_access_token(data)
+    return {"access_token": access_token, "refresh_token": body.refresh_token, "token_type": "bearer"}
+
+
+@router.post("/forgot-password")
+def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)):
+    """Issue a password reset token for the provided email.
+
+    NOTE: In production you should email this token; here we return it
+    in the response for convenience/testing.
+    """
+    user = crud_user.get_user_by_email(db, request.email)
+    if not user:
+        # don't reveal whether an email is registered
+        return {"msg": "If the email is registered, a reset token was generated"}
+    # SQLAlchemy mapped attributes can appear to static checkers as Column[...] types.
+    # Cast to the expected runtime types for calls into our auth helpers.
+    token = auth.create_password_reset_token(cast(str, user.email))
+    # In real app: send token via email. For now return token in response.
+    return {"msg": "Password reset token generated", "reset_token": token}
+
+
+@router.post("/reset-password")
+def reset_password(data: PasswordResetConfirm, db: Session = Depends(get_db)):
+    """Reset password using a valid password-reset token."""
+    payload = auth.decode_token(data.token)
+    if not payload or payload.get("type") != "password_reset":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
+    email = payload.get("sub")
+    if email is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token payload")
+    user = crud_user.get_user_by_email(db, email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    # Cast the user.id to int for static type checkers (it's a Column[int] descriptor at type-level).
+    crud_user.update_user_password(db, cast(int, user.id), data.new_password)
+    return {"msg": "Password has been reset successfully"}
+
+
+@router.get("/me", response_model=UserOut)
+def read_current_user(current_user=Depends(auth.get_current_user)):
+    """Get the current authenticated user's profile."""
+    return current_user
 
 
 @router.get("/", response_model=list[UserOut])
@@ -35,9 +141,13 @@ def read_user_by_email(email: str, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=UserOut)
-def create_user(user_data: UserBase, db: Session = Depends(get_db)):
-    """Endpoint to create a new user."""
-    user = crud_user.add_user(db, user_data)
+def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
+    """Legacy create route updated to accept a password and create a user (hashes the password)."""
+    existing = crud_user.get_user_by_email(db, user_data.email)
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+    user = crud_user.create_user(db, user_data)
     return user
 
 

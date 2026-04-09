@@ -20,10 +20,25 @@ pydantic==2.12.5
 pydantic_core==2.41.5
 python-dotenv==1.2.2
 PyYAML==6.0.3
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
 SQLAlchemy==2.0.49
 starlette==1.0.0
 typing-inspection==0.4.2
-typing_extensions==4.15.0
-uvicorn==0.43.0
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
 watchfiles==1.1.1
 websockets==16.0
+
+# JWT and password hashing
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+
+# JWT and password hashing
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Type stubs for mypy
+types-python-jose
+types-passlib

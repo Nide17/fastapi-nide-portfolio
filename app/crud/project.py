@@ -24,8 +24,10 @@ def add_project(db: Session, project_data):
 
 def edit_project(db: Session, project_id: int, project_data):
     """Updates an existing project in the database."""
-    db.query(Project).filter(Project.id == project_id).update(
-        project_data.model_dump())
+    data = project_data.model_dump()
+    if not isinstance(data, dict):
+        data = dict(data)
+    db.query(Project).filter(Project.id == project_id).update(data)
     db.commit()
     return db.query(Project).filter(Project.id == project_id).first()
 

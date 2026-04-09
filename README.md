@@ -20,13 +20,31 @@ A small FastAPI for my portfolio API for managing projects, messages, downloads,
 
 ### Local Python
 
-1. Install dependencies:
+1. Create and activate a Python virtual environment (recommended):
+
+```bash
+# create a venv in the project directory
+python3 -m venv .venv
+# activate (bash / zsh)
+source .venv/bin/activate
+```
+
+On Windows (PowerShell):
+
+```powershell
+# create the venv
+python -m venv .venv
+# activate in PowerShell
+.\.venv\Scripts\Activate.ps1
+```
+
+2. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Run the app:
+3. Run the app:
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000

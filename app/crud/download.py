@@ -1,7 +1,7 @@
 # This separates DB queries from API logic (routes)
 from sqlalchemy.orm import Session
 from app.models.download import Download
-from app.utils.utils import get_existing_ip
+from app.core.utils import get_existing_ip
 
 
 def get_all_downloads(db: Session):
@@ -35,8 +35,10 @@ def add_download(db: Session, download_data):
 def edit_download(db: Session, download_id: int, download_data):
     """Updates an existing download in the database."""
     download_data.ip_address = str(download_data.ip_address)
-    db.query(Download).filter(Download.id == download_id).update(
-        download_data.model_dump())
+    data = download_data.model_dump()
+    if not isinstance(data, dict):
+        data = dict(data)
+    db.query(Download).filter(Download.id == download_id).update(data)
     db.commit()
     return db.query(Download).filter(Download.id == download_id).first()
 

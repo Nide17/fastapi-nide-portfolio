@@ -1,7 +1,7 @@
 # This separates DB queries from API logic (routes)
 from sqlalchemy.orm import Session
 from app.models.visit import Visit
-from app.utils.utils import get_existing_ip
+from app.core.utils import get_existing_ip
 
 
 def get_all_visits(db: Session):
@@ -36,8 +36,10 @@ def add_visit(db: Session, visit_data):
 def edit_visit(db: Session, visit_id: int, visit_data):
     """Updates an existing visit in the database."""
     visit_data.ip_address = str(visit_data.ip_address)
-    db.query(Visit).filter(Visit.id == visit_id).update(
-        visit_data.model_dump())
+    data = visit_data.model_dump()
+    if not isinstance(data, dict):
+        data = dict(data)
+    db.query(Visit).filter(Visit.id == visit_id).update(data)
     db.commit()
     return db.query(Visit).filter(Visit.id == visit_id).first()
 

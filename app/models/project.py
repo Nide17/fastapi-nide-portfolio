@@ -1,6 +1,7 @@
 # DB Tables
 from sqlalchemy import Column, Integer, String, ARRAY, TIMESTAMP, text
 from app.db.session import Base
+from typing import Any
 
 
 class Project(Base):
@@ -13,6 +14,7 @@ class Project(Base):
     github = Column(String)
     live_at = Column(String)
     # Array of strings like ["FastAPI", "React"]
-    technologies = Column(ARRAY(String))
+    # Annotate as Any to satisfy static type checkers for SQLAlchemy descriptors
+    technologies: Any = Column(ARRAY(String))
     created_at = Column(TIMESTAMP(timezone=True),
                         server_default=text("NOW() AT TIME ZONE 'UTC'"))
