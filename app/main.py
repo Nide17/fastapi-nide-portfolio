@@ -1,10 +1,21 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import projects, messages, downloads, visits, users
 
 app = FastAPI(
     title="FastAPI Nide Portfolio",
     description="Parmenide Portfolio API.",
     version="0.0.1",
+)
+
+
+# Configure CORS to allow everything
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
