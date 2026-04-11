@@ -3,10 +3,9 @@ User-related endpoints: registration, login, token refresh,
 password reset (forgot/reset) and basic CRUD.
 """
 
-from datetime import timedelta
 from typing import cast
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
@@ -29,6 +28,26 @@ router = APIRouter()
 
 class RefreshRequest(BaseModel):
     refresh_token: str
+
+
+def ensure_self_or_admin(current_user, target_user_id: int) -> None:
+    """Allow access when the caller owns the resource or is an admin."""
+    if current_user.id == target_user_id or current_user.role == "admin":
+        return
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Not authorized to access this user",
+    )
+
+
+def ensure_admin(current_user) -> None:
+    """Allow access only to admins."""
+    if current_user.role == "admin":
+        return
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Admin access required",
+    )
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
@@ -69,6 +88,13 @@ def refresh_token(body: RefreshRequest):
         "id"), "role": payload.get("role")}
     access_token = auth.create_access_token(data)
     return {"access_token": access_token, "refresh_token": body.refresh_token, "token_type": "bearer"}
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(current_user=Depends(auth.get_current_user)):
+    """Stateless logout: the client must discard stored bearer tokens."""
+    _ = current_user
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/forgot-password")
@@ -116,25 +142,39 @@ def read_current_user(current_user=Depends(auth.get_current_user)):
 
 
 @router.get("/", response_model=list[UserOut])
-def read_users(db: Session = Depends(get_db)):
+def read_users(
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user),
+):
     """Endpoint to fetch all users."""
+    ensure_admin(current_user)
     users = crud_user.get_all_users(db)
     return users
 
 
-@router.get("/{user_id}", response_model=UserOut)
-def read_user(user_id: int, db: Session = Depends(get_db)):
-    """Endpoint to fetch a specific user by its ID."""
-    user = crud_user.get_user_by_id(db, user_id)
+@router.get("/email/{email}", response_model=UserOut)
+def read_user_by_email(
+    email: str,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user),
+):
+    """Endpoint to fetch a specific user by their email."""
+    user = crud_user.get_user_by_email(db, email)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
+    ensure_self_or_admin(current_user, user.id)
     return user
 
 
-@router.get("/email/{email}", response_model=UserOut)
-def read_user_by_email(email: str, db: Session = Depends(get_db)):
-    """Endpoint to fetch a specific user by their email."""
-    user = crud_user.get_user_by_email(db, email)
+@router.get("/{user_id}", response_model=UserOut)
+def read_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user),
+):
+    """Endpoint to fetch a specific user by its ID."""
+    ensure_self_or_admin(current_user, user_id)
+    user = crud_user.get_user_by_id(db, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
@@ -152,8 +192,14 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{user_id}", response_model=UserOut)
-def update_user(user_id: int, user_data: UserBase, db: Session = Depends(get_db)):
+def update_user(
+    user_id: int,
+    user_data: UserBase,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user),
+):
     """Endpoint to update an existing user."""
+    ensure_self_or_admin(current_user, user_id)
     user = crud_user.edit_user(db, user_id, user_data)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -161,8 +207,13 @@ def update_user(user_id: int, user_data: UserBase, db: Session = Depends(get_db)
 
 
 @router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db)):
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user),
+):
     """Endpoint to delete a specific user by its ID."""
+    ensure_self_or_admin(current_user, user_id)
     existing_user = crud_user.get_user_by_id(db, user_id)
     if existing_user is None:
         raise HTTPException(status_code=404, detail="User not found")

@@ -8,6 +8,8 @@ venv/
 .venv/
 env/
 .env*
+.codex
+
 
 # IDE settings
 .vscode/
