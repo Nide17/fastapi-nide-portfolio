@@ -2,15 +2,13 @@ from datetime import datetime, timedelta
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Any
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from app.core.config import settings
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.crud import user as crud_user
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # OAuth2 scheme expecting token from /users/login
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
@@ -23,6 +21,9 @@ def verify_password(plain_password: str, hashed_password: Any) -> bool:
     attributes as Column[...] objects rather than runtime strings. Accept
     Any here and coerce to str at runtime to avoid type complaints while
     preserving runtime behavior.
+    
+    Bcrypt has a 72-byte password limit, so we truncate the password to 72 bytes
+    before verification to match the hashing behavior.
     """
     # Coerce to str in case a typing-aware analyzer exposed a Column type.
     if not isinstance(hashed_password, str):
@@ -31,12 +32,38 @@ def verify_password(plain_password: str, hashed_password: Any) -> bool:
         except Exception:
             # If coercion fails, treat as verification failure
             return False
-    return pwd_context.verify(plain_password, hashed_password)
+    
+    # Truncate password to 72 bytes (not characters) to match hashing behavior
+    password_bytes = plain_password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+    
+    # Convert hashed password to bytes if it's a string
+    if isinstance(hashed_password, str):
+        hashed_password_bytes = hashed_password.encode('utf-8')
+    else:
+        hashed_password_bytes = hashed_password
+    
+    return bcrypt.checkpw(password_bytes, hashed_password_bytes)
 
 
 def get_password_hash(password: str) -> str:
-    """Hash a plain password."""
-    return pwd_context.hash(password)
+    """Hash a plain password.
+    
+    Bcrypt has a 72-byte password limit. We truncate the password to 72 bytes
+    before hashing to comply with this limitation.
+    """
+    # Truncate password to 72 bytes (not characters) to comply with bcrypt limit
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+    
+    # Generate salt and hash the password
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password_bytes, salt)
+    
+    # Return as string for storage
+    return hashed_password.decode('utf-8')
 
 
 def create_access_token(data: dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:

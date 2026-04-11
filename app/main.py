@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import projects, messages, downloads, visits, users
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 app = FastAPI(
     title="FastAPI Nide Portfolio",
