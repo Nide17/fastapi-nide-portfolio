@@ -20,7 +20,7 @@ def verify_password(plain_password: str, hashed_password: Any) -> bool:
     attributes as Column[...] objects rather than runtime strings. Accept
     Any here and coerce to str at runtime to avoid type complaints while
     preserving runtime behavior.
-    
+
     Bcrypt has a 72-byte password limit, so we truncate the password to 72 bytes
     before verification to match the hashing behavior.
     """
@@ -31,24 +31,24 @@ def verify_password(plain_password: str, hashed_password: Any) -> bool:
         except Exception:
             # If coercion fails, treat as verification failure
             return False
-    
+
     # Truncate password to 72 bytes (not characters) to match hashing behavior
     password_bytes = plain_password.encode('utf-8')
     if len(password_bytes) > 72:
         password_bytes = password_bytes[:72]
-    
+
     # Convert hashed password to bytes if it's a string
     if isinstance(hashed_password, str):
         hashed_password_bytes = hashed_password.encode('utf-8')
     else:
         hashed_password_bytes = hashed_password
-    
+
     return bcrypt.checkpw(password_bytes, hashed_password_bytes)
 
 
 def get_password_hash(password: str) -> str:
     """Hash a plain password.
-    
+
     Bcrypt has a 72-byte password limit. We truncate the password to 72 bytes
     before hashing to comply with this limitation.
     """
@@ -56,11 +56,11 @@ def get_password_hash(password: str) -> str:
     password_bytes = password.encode('utf-8')
     if len(password_bytes) > 72:
         password_bytes = password_bytes[:72]
-    
+
     # Generate salt and hash the password
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(password_bytes, salt)
-    
+
     # Return as string for storage
     return hashed_password.decode('utf-8')
 
@@ -77,19 +77,6 @@ def create_access_token(data: dict[str, Any], expires_delta: Optional[timedelta]
     # JWT expects numeric 'exp' (seconds since epoch). Use int timestamp.
     to_encode["exp"] = int(expire.timestamp())
     to_encode["type"] = "access"
-    encoded_jwt = jwt.encode(
-        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-    return encoded_jwt
-
-
-def create_refresh_token(data: dict[str, Any]) -> str:
-    """Create a JWT refresh token."""
-    to_encode = data.copy()
-    # Use timezone-aware now and numeric timestamp for 'exp'.
-    expire = datetime.now(timezone.utc) + \
-        timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-    to_encode["exp"] = int(expire.timestamp())
-    to_encode["type"] = "refresh"
     encoded_jwt = jwt.encode(
         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt

@@ -15,7 +15,16 @@ def get_project_by_id(db: Session, project_id: int):
 
 def add_project(db: Session, project_data):
     """Creates a new project in the database."""
-    new_project = Project(**project_data.model_dump())
+    data = project_data.model_dump()
+    # Convert AnyHttpUrl to strings
+    if data.get('github') is not None:
+        data['github'] = str(data['github'])
+    if data.get('live_at') is not None:
+        data['live_at'] = str(data['live_at'])
+    # For technologies. data like FastAPI;PostgreSQL are a list, but if it's a single string, we need to convert it to a list
+    if data.get('technologies') is not None and isinstance(data['technologies'], str):
+        data['technologies'] = [data['technologies']]
+    new_project = Project(**data)
     db.add(new_project)
     db.commit()
     db.refresh(new_project)
@@ -27,6 +36,14 @@ def edit_project(db: Session, project_id: int, project_data):
     data = project_data.model_dump()
     if not isinstance(data, dict):
         data = dict(data)
+    # Convert AnyHttpUrl to strings
+    if data.get('github') is not None:
+        data['github'] = str(data['github'])
+    if data.get('live_at') is not None:
+        data['live_at'] = str(data['live_at'])
+    # For technologies. data like FastAPI;PostgreSQL are a list, but if it's a single string, we need to convert it to a list
+    if data.get('technologies') is not None and isinstance(data['technologies'], str):
+        data['technologies'] = [data['technologies']]
     db.query(Project).filter(Project.id == project_id).update(data)
     db.commit()
     return db.query(Project).filter(Project.id == project_id).first()

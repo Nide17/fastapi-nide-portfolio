@@ -26,10 +26,6 @@ from app.core import auth
 router = APIRouter()
 
 
-class RefreshRequest(BaseModel):
-    refresh_token: str
-
-
 def ensure_self_or_admin(current_user, target_user_id: int) -> None:
     """Allow access when the caller owns the resource or is an admin."""
     if current_user.id == target_user_id or current_user.role == "admin":
@@ -63,7 +59,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenSchema)
 def login(credentials: UserLogin, db: Session = Depends(get_db)):
-    """Authenticate user and return access and refresh tokens."""
+    """Authenticate user and return access token."""
     user = crud_user.authenticate_user(
         db, credentials.email, credentials.password)
     if not user:
@@ -72,22 +68,7 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
 
     data = {"sub": user.email, "id": user.id, "role": user.role}
     access_token = auth.create_access_token(data)
-    refresh_token = auth.create_refresh_token(data)
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
-
-
-@router.post("/token/refresh", response_model=TokenSchema)
-def refresh_token(body: RefreshRequest):
-    """Exchange a refresh token for a new access token."""
-    payload = auth.decode_token(body.refresh_token)
-    if not payload or payload.get("type") != "refresh":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
-    # Build new access token with a fresh expiry
-    data = {"sub": payload.get("sub"), "id": payload.get(
-        "id"), "role": payload.get("role")}
-    access_token = auth.create_access_token(data)
-    return {"access_token": access_token, "refresh_token": body.refresh_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
