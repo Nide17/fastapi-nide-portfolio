@@ -4,22 +4,17 @@ from jose import JWTError, jwt
 import bcrypt
 from app.core.config import settings
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.crud import user as crud_user
 
-# OAuth2 scheme expecting token from /users/login
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
+# HTTPBearer scheme for simple JWT token auth
+oauth2_scheme = HTTPBearer()
 
 
 def verify_password(plain_password: str, hashed_password: Any) -> bool:
     """Verify a plain password against a hashed password.
-
-    Some static type checkers (Pylance) may interpret SQLAlchemy mapped
-    attributes as Column[...] objects rather than runtime strings. Accept
-    Any here and coerce to str at runtime to avoid type complaints while
-    preserving runtime behavior.
 
     Bcrypt has a 72-byte password limit, so we truncate the password to 72 bytes
     before verification to match the hashing behavior.
@@ -92,10 +87,12 @@ def decode_token(token: str) -> Optional[dict[str, Any]]:
         return None
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     """Dependency to retrieve current user from an access token."""
+    token = credentials.credentials
     payload = decode_token(token)
     if not payload or payload.get("type") != "access":
+        print("Token payload invalid or not an access token:", payload)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Invalid authentication credentials",
                             headers={"WWW-Authenticate": "Bearer"})

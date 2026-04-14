@@ -1,13 +1,11 @@
 """
-User-related endpoints: registration, login, token refresh,
-password reset (forgot/reset) and basic CRUD.
+User-related endpoints: registration, login, password reset (forgot/reset) and basic CRUD.
 """
 
 from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
 
 from app.db.session import get_db
 from app.crud import user as crud_user
@@ -143,7 +141,7 @@ def read_user_by_email(
     user = crud_user.get_user_by_email(db, email)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    ensure_self_or_admin(current_user, user.id)
+    ensure_self_or_admin(current_user, user.id.scalar())
     return user
 
 
@@ -158,17 +156,6 @@ def read_user(
     user = crud_user.get_user_by_id(db, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
-
-
-@router.post("/", response_model=UserOut)
-def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
-    """Legacy create route updated to accept a password and create a user (hashes the password)."""
-    existing = crud_user.get_user_by_email(db, user_data.email)
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
-    user = crud_user.create_user(db, user_data)
     return user
 
 
