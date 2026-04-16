@@ -17,8 +17,10 @@ def add_project(db: Session, project_data):
     """Creates a new project in the database."""
     data = project_data.model_dump()
     # Convert AnyHttpUrl to strings
-    if data.get('github') is not None:
-        data['github'] = str(data['github'])
+    if data.get('github_backend') is not None:
+        data['github_backend'] = str(data['github_backend'])
+    if data.get('github_frontend') is not None:
+        data['github_frontend'] = str(data['github_frontend'])
     if data.get('live_at') is not None:
         data['live_at'] = str(data['live_at'])
     # For technologies. data like FastAPI;PostgreSQL are a list, but if it's a single string, we need to convert it to a list
@@ -37,8 +39,10 @@ def edit_project(db: Session, project_id: int, project_data):
     if not isinstance(data, dict):
         data = dict(data)
     # Convert AnyHttpUrl to strings
-    if data.get('github') is not None:
-        data['github'] = str(data['github'])
+    if data.get('github_backend') is not None:
+        data['github_backend'] = str(data['github_backend'])
+    if data.get('github_frontend') is not None:
+        data['github_frontend'] = str(data['github_frontend'])
     if data.get('live_at') is not None:
         data['live_at'] = str(data['live_at'])
     # For technologies. data like FastAPI;PostgreSQL are a list, but if it's a single string, we need to convert it to a list

@@ -8,7 +8,8 @@ class ProjectBase(BaseModel):
     title: str
     description: Optional[str] = None
     image: Optional[str] = None
-    github: Optional[AnyHttpUrl] = None
+    github_backend: Optional[AnyHttpUrl] = None
+    github_frontend: Optional[AnyHttpUrl] = None
     live_at: Optional[AnyHttpUrl] = None
     technologies: Optional[List[str]] = None
 

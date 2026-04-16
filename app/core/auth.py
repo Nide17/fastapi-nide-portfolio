@@ -90,7 +90,9 @@ def decode_token(token: str) -> Optional[dict[str, Any]]:
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     """Dependency to retrieve current user from an access token."""
     token = credentials.credentials
+    print("Token:", token)
     payload = decode_token(token)
+    print("Payload:", payload)
     if not payload or payload.get("type") != "access":
         print("Token payload invalid or not an access token:", payload)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
