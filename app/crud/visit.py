@@ -6,7 +6,7 @@ from app.core.utils import get_existing_ip
 
 def get_all_visits(db: Session):
     """Fetches all visits from the database."""
-    return db.query(Visit).all()
+    return db.query(Visit).order_by(Visit.created_at.desc()).all()
 
 
 def get_visit_by_id(db: Session, visit_id: int):

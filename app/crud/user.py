@@ -7,7 +7,7 @@ from app.schemas.user import UserCreate
 
 def get_all_users(db: Session):
     """Fetches all users from the database."""
-    return db.query(User).all()
+    return db.query(User).order_by(User.created_at.desc()).all()
 
 
 def get_user_by_id(db: Session, user_id: int):

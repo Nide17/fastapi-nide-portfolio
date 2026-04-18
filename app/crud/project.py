@@ -5,7 +5,7 @@ from app.models.project import Project
 
 def get_all_projects(db: Session):
     """Fetches all projects from the database."""
-    return db.query(Project).all()
+    return db.query(Project).order_by(Project.created_at.asc()).all()
 
 
 def get_project_by_id(db: Session, project_id: int):

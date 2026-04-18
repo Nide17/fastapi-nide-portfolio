@@ -5,7 +5,7 @@ from app.models.message import Message
 
 def get_all_messages(db: Session):
     """Fetches all messages from the database."""
-    return db.query(Message).all()
+    return db.query(Message).order_by(Message.created_at.desc()).all()
 
 
 def get_message_by_id(db: Session, message_id: int):

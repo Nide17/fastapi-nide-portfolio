@@ -6,7 +6,7 @@ from app.core.utils import get_existing_ip
 
 def get_all_downloads(db: Session):
     """Fetches all downloads from the database."""
-    return db.query(Download).all()
+    return db.query(Download).order_by(Download.created_at.desc()).all()
 
 
 def get_download_by_id(db: Session, download_id: int):
