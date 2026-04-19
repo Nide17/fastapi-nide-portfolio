@@ -13,8 +13,12 @@ router = APIRouter()
 @router.get("/", response_model=list[DownloadOut])
 def read_downloads(db: Session = Depends(get_db)):
     """Endpoint to fetch all downloads."""
-    downloads = crud_download.get_all_downloads(db)
-    return downloads
+    try:
+        downloads = crud_download.get_all_downloads(db)
+        return downloads
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch downloads. Check logs.")
 
 
 @router.get("/{download_id}", response_model=DownloadOut)
@@ -35,8 +39,12 @@ def read_download(
 @router.post("/", response_model=DownloadOut)
 def create_download(download_data: DownloadBase, db: Session = Depends(get_db)):
     """Endpoint to create a new download."""
-    download = crud_download.add_download(db, download_data)
-    return download
+    try:
+        download = crud_download.add_download(db, download_data)
+        return download
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Failed to create download. Invalid data or DB issue.")
 
 
 @router.put("/{download_id}", response_model=DownloadOut)

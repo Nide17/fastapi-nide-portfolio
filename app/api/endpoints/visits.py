@@ -12,8 +12,12 @@ router = APIRouter()
 @router.get("/", response_model=list[VisitOut])
 def read_visits(db: Session = Depends(get_db)):
     """Endpoint to fetch all visits."""
-    visits = crud_visit.get_all_visits(db)
-    return visits
+    try:
+        visits = crud_visit.get_all_visits(db)
+        return visits
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch visits. Check logs.")
 
 
 @router.get("/{visit_id}", response_model=VisitOut)
@@ -34,8 +38,12 @@ def read_visit(
 @router.post("/", response_model=VisitOut)
 def create_visit(visit_data: VisitBase, db: Session = Depends(get_db)):
     """Endpoint to create a new visit."""
-    visit = crud_visit.add_visit(db, visit_data)
-    return visit
+    try:
+        visit = crud_visit.add_visit(db, visit_data)
+        return visit
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Failed to create visit. Invalid data or DB issue.")
 
 
 @router.put("/{visit_id}", response_model=VisitOut)

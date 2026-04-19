@@ -13,8 +13,12 @@ router = APIRouter()
 @router.get("/", response_model=list[MessageOut])
 def read_messages(db: Session = Depends(get_db)):
     """Endpoint to fetch all messages."""
-    messages = crud_message.get_all_messages(db)
-    return messages
+    try:
+        messages = crud_message.get_all_messages(db)
+        return messages
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch messages. Check logs.")
 
 
 @router.get("/{message_id}", response_model=MessageOut)
@@ -35,8 +39,12 @@ def read_message(
 @router.post("/", response_model=MessageOut)
 def create_message(message_data: MessageBase, db: Session = Depends(get_db)):
     """Endpoint to create a new message."""
-    message = crud_message.add_message(db, message_data)
-    return message
+    try:
+        message = crud_message.add_message(db, message_data)
+        return message
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Failed to create message. Invalid data or DB issue.")
 
 
 @router.put("/{message_id}", response_model=MessageOut)
