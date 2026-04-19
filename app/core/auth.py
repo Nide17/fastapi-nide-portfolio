@@ -7,7 +7,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.crud import user as crud_user
+
 
 # HTTPBearer scheme for simple JWT token auth
 oauth2_scheme = HTTPBearer()
@@ -104,6 +104,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(oauth2_
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token payload",
             headers={"WWW-Authenticate": "Bearer"})
+    from app.crud import user as crud_user
     user = crud_user.get_user_by_email(db, email)
     if user is None:
         raise HTTPException(

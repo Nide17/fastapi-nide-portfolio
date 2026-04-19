@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
+from app.core import auth
 from app.crud import download as crud_download
 from app.schemas.download import DownloadBase, DownloadOut
 
@@ -17,9 +18,15 @@ def read_downloads(db: Session = Depends(get_db)):
 
 
 @router.get("/{download_id}", response_model=DownloadOut)
-def read_download(download_id: int, db: Session = Depends(get_db)):
+def read_download(
+    download_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user)
+):
     """Endpoint to fetch a specific download by its ID."""
     download = crud_download.get_download_by_id(db, download_id)
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
     if download is None:
         raise HTTPException(status_code=404, detail="Download not found")
     return download
@@ -33,9 +40,16 @@ def create_download(download_data: DownloadBase, db: Session = Depends(get_db)):
 
 
 @router.put("/{download_id}", response_model=DownloadOut)
-def update_download(download_id: int, download_data: DownloadBase, db: Session = Depends(get_db)):
+def update_download(
+    download_id: int,
+    download_data: DownloadBase,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user)
+):
     """Endpoint to update an existing download."""
     existing_download = crud_download.get_download_by_id(db, download_id)
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
     if existing_download is None:
         raise HTTPException(status_code=404, detail="Download not found")
     updated_download = crud_download.edit_download(
@@ -44,9 +58,15 @@ def update_download(download_id: int, download_data: DownloadBase, db: Session =
 
 
 @router.delete("/{download_id}")
-def delete_download(download_id: int, db: Session = Depends(get_db)):
+def delete_download(
+    download_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user)
+):
     """Endpoint to delete a specific download by its ID."""
     existing_download = crud_download.get_download_by_id(db, download_id)
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
     if existing_download is None:
         raise HTTPException(status_code=404, detail="Download not found")
     crud_download.remove_download(db, download_id)

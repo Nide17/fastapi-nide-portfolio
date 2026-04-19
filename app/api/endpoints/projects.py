@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, OperationalError, SQLAlchemyError
 from app.db.session import get_db
+from app.core import auth
 from app.crud import project as crud_project
 from app.schemas.project import ProjectBase, ProjectOut
 
@@ -73,7 +74,12 @@ def create_project(project_data: ProjectBase, db: Session = Depends(get_db)):
 
 
 @router.put("/{project_id}", response_model=ProjectOut)
-def update_project(project_id: int, project_data: ProjectBase, db: Session = Depends(get_db)):
+def update_project(
+    project_id: int,
+    project_data: ProjectBase,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user)
+):
     """Endpoint to update an existing project."""
     try:
         existing_project = crud_project.get_project_by_id(db, project_id)
@@ -87,6 +93,9 @@ def update_project(project_id: int, project_data: ProjectBase, db: Session = Dep
             status_code=500,
             detail="Database error while loading the project.",
         ) from exc
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=403, detail="Admin access required")
     if existing_project is None:
         raise HTTPException(status_code=404, detail="Project not found")
     try:
@@ -112,7 +121,11 @@ def update_project(project_id: int, project_data: ProjectBase, db: Session = Dep
 
 
 @router.delete("/{project_id}")
-def delete_project(project_id: int, db: Session = Depends(get_db)):
+def delete_project(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth.get_current_user)
+):
     """Endpoint to delete a project."""
     try:
         existing_project = crud_project.get_project_by_id(db, project_id)
@@ -126,6 +139,9 @@ def delete_project(project_id: int, db: Session = Depends(get_db)):
             status_code=500,
             detail="Database error while loading the project.",
         ) from exc
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=403, detail="Admin access required")
     if existing_project is None:
         raise HTTPException(status_code=404, detail="Project not found")
     try:
