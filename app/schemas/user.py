@@ -26,6 +26,7 @@ class Token(BaseModel):
 
 class PasswordResetRequest(BaseModel):
     email: EmailStr
+    name: Optional[str] = None
 
 
 class PasswordResetConfirm(BaseModel):

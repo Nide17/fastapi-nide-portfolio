@@ -77,21 +77,16 @@ def logout(current_user=Depends(auth.get_current_user)):
 
 
 @router.post("/forgot-password")
-def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)):
-    """Issue a password reset token for the provided email.
-
-    NOTE: In production you should email this token; here we return it
-    in the response for convenience/testing.
-    """
+async def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)):
+    """Issue a password reset token for the provided email and send via email."""
+    from app.utils.email import send_reset_email
     user = crud_user.get_user_by_email(db, request.email)
     if not user:
-        # don't reveal whether an email is registered
-        return {"msg": "If the email is registered, a reset token was generated"}
-    # SQLAlchemy mapped attributes can appear to static checkers as Column[...] types.
-    # Cast to the expected runtime types for calls into our auth helpers.
-    token = auth.create_password_reset_token(cast(str, user.email))
-    # In real app: send token via email. For now return token in response.
-    return {"msg": "Password reset token generated", "reset_token": token}
+        raise HTTPException(status_code=404, detail="Email not registered")
+    token = auth.create_password_reset_token(str(user.email))
+    name_to_use = request.name or str(user.name) or "User"
+    await send_reset_email(request.email, name_to_use, token)
+    return {"msg": "Password reset email sent. Check your inbox (or console in test mode)."}
 
 
 @router.post("/reset-password")
