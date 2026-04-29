@@ -38,6 +38,14 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
+or 
+```bash
+# create the venv
+python -m venv .venv
+# activate in bash (git bash on Windows)
+source .venv/Scripts/activate
+```
+
 2. Install dependencies:
 
 ```bash

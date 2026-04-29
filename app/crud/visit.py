@@ -23,7 +23,7 @@ def add_visit(db: Session, visit_data):
     existing = get_existing_ip(db, visit_data.ip_address, Visit)
     if existing:
         print(
-            f"\n => Visit from IP {visit_data.ip_address} already exists within the time window. Skipping.\n")
+            f"\n => Visit from IP {visit_data.ip_address, visit_data.country} already exists within the time window. Skipping.\n")
         return existing
 
     new_visit = Visit(**visit_data.model_dump())

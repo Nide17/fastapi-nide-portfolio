@@ -51,7 +51,7 @@ async def send_reset_email(email: str, name: str, token: str):
         Token (fallback): {token}
     </p>
     <p>If you did not request this, ignore this email.</p>
-    <p>Best,<br>Nide Portfolio Team</p>
+    <p>Best,<br>Parmenide</p>
 </body>
 </html>
     """
